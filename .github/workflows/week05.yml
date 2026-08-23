@@ -1,0 +1,52 @@
+name: Lab 05 - Functions and error handling
+
+on:
+  push:
+    paths:
+      - 'week05/**'
+      - '.github/workflows/week05.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+  pull_request:
+    paths:
+      - 'week05/**'
+      - '.github/workflows/week05.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-05-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    if: github.repository == 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate starter structure
+        run: |
+          test -f week05/lab05.md
+          test -d week05/tests
+
+  grade:
+    if: github.repository != 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run Lab 05 grader
+        working-directory: week05
+        run: uv run python -m pytest tests/ -v

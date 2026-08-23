@@ -1,0 +1,52 @@
+name: Lab 11 - Structs, enums, and methods
+
+on:
+  push:
+    paths:
+      - 'week11/**'
+      - '.github/workflows/week11.yml'
+  pull_request:
+    paths:
+      - 'week11/**'
+      - '.github/workflows/week11.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-11-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    if: github.repository == 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate starter structure
+        run: |
+          test -f week11/lab11.md
+          test -f week11/Cargo.toml
+          test -d week11/src
+
+  grade:
+    if: github.repository != 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: stable
+      - name: Run Lab 11 tests
+        working-directory: week11
+        run: cargo test --verbose
+      - name: Check formatting
+        working-directory: week11
+        run: cargo fmt --check
+      - name: Run Clippy
+        working-directory: week11
+        run: cargo clippy -- -D warnings
+

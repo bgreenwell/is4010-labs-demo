@@ -1,0 +1,52 @@
+name: Lab 14 - CLI application
+
+on:
+  push:
+    paths:
+      - 'week14/**'
+      - '.github/workflows/week14.yml'
+  pull_request:
+    paths:
+      - 'week14/**'
+      - '.github/workflows/week14.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-14-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    if: github.repository == 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate starter structure
+        run: |
+          test -f week14/lab14.md
+          test -f week14/Cargo.toml
+          test -d week14/src
+
+  grade:
+    if: github.repository != 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: stable
+      - name: Run Lab 14 tests
+        working-directory: week14
+        run: cargo test --verbose
+      - name: Check formatting
+        working-directory: week14
+        run: cargo fmt --check
+      - name: Run Clippy
+        working-directory: week14
+        run: cargo clippy -- -D warnings
+

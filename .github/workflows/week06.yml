@@ -1,0 +1,52 @@
+name: Lab 06 - Object-oriented programming
+
+on:
+  push:
+    paths:
+      - 'week06/**'
+      - '.github/workflows/week06.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+  pull_request:
+    paths:
+      - 'week06/**'
+      - '.github/workflows/week06.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-06-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    if: github.repository == 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate starter structure
+        run: |
+          test -f week06/lab06.md
+          test -d week06/tests
+
+  grade:
+    if: github.repository != 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run Lab 06 grader
+        working-directory: week06
+        run: uv run python -m pytest tests/ -v

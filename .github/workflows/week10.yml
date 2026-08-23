@@ -1,0 +1,52 @@
+name: Lab 10 - Ownership and borrowing
+
+on:
+  push:
+    paths:
+      - 'week10/**'
+      - '.github/workflows/week10.yml'
+  pull_request:
+    paths:
+      - 'week10/**'
+      - '.github/workflows/week10.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-10-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    if: github.repository == 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate starter structure
+        run: |
+          test -f week10/lab10.md
+          test -f week10/Cargo.toml
+          test -d week10/src
+
+  grade:
+    if: github.repository != 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        with:
+          toolchain: stable
+      - name: Run Lab 10 tests
+        working-directory: week10
+        run: cargo test --verbose
+      - name: Check formatting
+        working-directory: week10
+        run: cargo fmt --check
+      - name: Run Clippy
+        working-directory: week10
+        run: cargo clippy -- -D warnings
+

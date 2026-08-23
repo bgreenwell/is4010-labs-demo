@@ -1,0 +1,53 @@
+name: Lab 01 - Repository setup
+
+on:
+  push:
+    paths:
+      - 'week01/**'
+      - '.github/workflows/week01.yml'
+  pull_request:
+    paths:
+      - 'week01/**'
+      - '.github/workflows/week01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-01-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    if: github.repository == 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate starter structure
+        run: |
+          test -f week01/lab01.md
+          test -f week01/student_setup.template.md
+          test -f week01/validate_setup.py
+
+  grade:
+    if: github.repository != 'bgreenwell/is4010-labs' && github.repository != 'bgreenwell/is4010-labs-solutions'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+      - name: Validate setup record
+        run: uv run python week01/validate_setup.py
+
+  solution-template:
+    if: github.repository == 'bgreenwell/is4010-labs-solutions'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate instructor structure
+        run: test -f week01/student_setup.template.md

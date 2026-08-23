@@ -1,0 +1,52 @@
+name: Lab 07 - External data and APIs
+
+on:
+  push:
+    paths:
+      - 'week07/**'
+      - '.github/workflows/week07.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+  pull_request:
+    paths:
+      - 'week07/**'
+      - '.github/workflows/week07.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-07-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    if: github.repository == 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate starter structure
+        run: |
+          test -f week07/lab07.md
+          test -d week07/tests
+
+  grade:
+    if: github.repository != 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run Lab 07 grader
+        working-directory: week07
+        run: uv run python -m pytest tests/ -v

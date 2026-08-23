@@ -1,0 +1,18 @@
+[project]
+name = "is4010-labs"
+version = "0.1.0"
+description = "Python dependencies for the IS4010 lab repository"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.31.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]
+
+[tool.uv]
+package = false
+required-version = ">=0.9.0"

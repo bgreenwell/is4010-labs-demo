@@ -1,0 +1,53 @@
+name: Lab 02 - Compare CLI coding agents
+
+on:
+  push:
+    paths:
+      - 'week02/**'
+      - '.github/workflows/week02.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+  pull_request:
+    paths:
+      - 'week02/**'
+      - '.github/workflows/week02.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-02-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    if: github.repository == 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate starter structure
+        run: |
+          test -f week02/lab02.md
+          test -f week02/lab02_prompts.template.md
+          test -d week02/tests
+
+  grade:
+    if: github.repository != 'bgreenwell/is4010-labs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run Lab 02 grader
+        working-directory: week02
+        run: uv run python -m pytest tests/ -v
