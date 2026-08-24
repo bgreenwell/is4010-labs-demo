@@ -1,6 +1,6 @@
-# IS4010 labs
+# IS 4010 labs
 
-This repository contains all 14 labs for **IS4010: AI-enhanced application development**. Labs 01–08 use the Python development environment; Labs 09–14 use Rust.
+This repository contains all 14 labs for **IS 4010: Application Development with Artificial Intelligence**. Labs 01–08 use the Python development environment; Labs 09–14 use Rust.
 
 > [!NOTE]
 > **This is a demonstration repository, not the course repository.**
